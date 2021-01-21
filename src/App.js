@@ -41,7 +41,7 @@ const App = () => {
 }
 
 // Definition of List component
-const List = () => {
+const List = (props) => {
   return props.list.map(item => {
     return (
       <div key={item.objectID}>
