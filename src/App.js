@@ -1,36 +1,25 @@
 import React from 'react';
 
-/*
-const numbers = [1, 4, 9, 16];
+const App = () => {
 
-const newNumbers = numbers.map(function(number) {
-  return numbers * 2;
-});
-
-console.log(newNumbers);
-// [2, 8, 18, 32]
-*/
-
-const list = [
-  {
-    title: 'React',
+  const stories = [
+    {
+      title: 'React',
     url: 'https://reactjs.org/',
     author: 'Jordan Walke',
     num_comments: 3,
     points: 4,
     objectID: 0,
-  },
-  {
-    title: 'Redux',
+    },
+    {
+      title: 'Redux',
     url: 'https://redux.js.org/',
     author: 'Dan Abramov, Andrew Clark',
     num_comments: 2,
     points: 5,
     objectID: 1,
-  },
-];
-
-const App = () => {
+    },
+  ];
 
   const handleChange = event => {
     console.log(event.target.value);
@@ -45,11 +34,7 @@ const App = () => {
 
       <hr />
 
-      {/* creating an instance of List component */}
-      <List />
-
-      {/* creating another instance of List component */}
-      <List />
+      <List list={stories} />
 
     </div>
   );
@@ -57,7 +42,7 @@ const App = () => {
 
 // Definition of List component
 const List = () => {
-  return list.map(item => {
+  return props.list.map(item => {
     return (
       <div key={item.objectID}>
         <span>
