@@ -47,7 +47,7 @@ const [searchTerm, setSearchTerm] = useSemiPersistentState('search', 'React');
     <div>
       <h1>My Hacker Stories</h1>
 
-      <InputWithLabel id="search" value={searchTerm} onInputChange={handleSearch}> 
+      <InputWithLabel id="search" isFocused value={searchTerm} onInputChange={handleSearch}> 
         <strong>Search: </strong>
       </InputWithLabel>
 
@@ -59,11 +59,21 @@ const [searchTerm, setSearchTerm] = useSemiPersistentState('search', 'React');
   );
 }
 
-const InputWithLabel = ({ id, value, type='text', onInputChange, children }) => {
+const InputWithLabel = ({ id, value, type='text', onInputChange, isFocused, children }) => {
+
+  const inputRef = React.useRef();
+
+  React.useEffect( () => {
+    if(isFocused && inputRef.current){
+      inputRef.current.focus();
+    }
+  }, [isFocused]);
+
   return (
     <>
       <label htmlFor={id}>{children}</label>
-      <input id={id} type={type} value={value} onChange={onInputChange} />
+      &nbsp;
+      <input id={id} ref={inputRef} type={type} value={value} onChange={onInputChange} />
     </>
   );
 };
