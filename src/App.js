@@ -16,73 +16,72 @@ const App = () => {
     return [value, setValue];
 };
 
-const storiesReducer = (state, action) => {
-  switch(action.type) {
-    case 'STORIES_FETCH_INIT':
-      return {
-        ...state,
-        isLoading: true,
-        isError: false,
-      };
-    case 'STORIES_FETCH_SUCCES':
-      return {
-        ...state,
-        isLoading: false,
-        isError: false,
-        data: action.payload,
-      };
-    case 'STORIES_FETCH_FAILURE':
-      return {
-        ...state,
-        isLoading: false,
-        isError: true,
-      };
-    case 'REMOVE_STORY':
-      return {
-        ...state,
-        data: state.data.filter(
-          story => action.payload.objectID !== story.objectID
-        ),
-      };
-    default:
-      throw new Error();
-  }
-};
+  const storiesReducer = (state, action) => {
+    switch(action.type) {
+      case 'STORIES_FETCH_INIT':
+        return {
+          ...state,
+          isLoading: true,
+          isError: false,
+        };
+      case 'STORIES_FETCH_SUCCES':
+        return {
+          ...state,
+          isLoading: false,
+          isError: false,
+          data: action.payload,
+        };
+      case 'STORIES_FETCH_FAILURE':
+        return {
+          ...state,
+          isLoading: false,
+          isError: true,
+        };
+      case 'REMOVE_STORY':
+        return {
+          ...state,
+          data: state.data.filter(
+            story => action.payload.objectID !== story.objectID
+          ),
+        };
+      default:
+        throw new Error();
+    }
+  };
 
-const [stories, dispatchStories] = React.useReducer(
-  storiesReducer, {data: [], isLoading: false, isError: false }
-);
+  const [stories, dispatchStories] = React.useReducer(
+    storiesReducer, {data: [], isLoading: false, isError: false }
+  );
 
-React.useEffect(() => {
-  dispatchStories({ type: 'STORIES_FETCH_INIT' });
+  const [searchTerm, setSearchTerm] = useSemiPersistentState('search', 'React');
 
-  fetch(`${API_ENDPOINT}react`)
-  .then(response => response.json())
-  .then(result => {
+  React.useEffect(() => {
+    if(!searchTerm) return;
+
+    dispatchStories({ type: 'STORIES_FETCH_INIT' });
+
+    fetch(`${API_ENDPOINT}${searchTerm}`)
+    .then(response => response.json())
+    .then(result => {
+      dispatchStories({
+        type: 'STORIES_FETCH_SUCCES',
+        payload: result.hits,
+      });
+    })
+    .catch(() => dispatchStories({ type: 'STORIES_FETCH_FAILURE'})
+    );
+  }, [searchTerm]);
+
+  const handleRemoveStory = item => {
     dispatchStories({
-      type: 'STORIES_FETCH_SUCCES',
-      payload: result.hits,
+      type: 'REMOVE_STORY',
+      payload: item,
     });
-  })
-  .catch(() => dispatchStories({ type: 'STORIES_FETCH_FAILURE'}));
-}, []);
-
-const handleRemoveStory = item => {
-  dispatchStories({
-    type: 'REMOVE_STORY',
-    payload: item,
-  });
-};
-
-const [searchTerm, setSearchTerm] = useSemiPersistentState('search', 'React');
+  };
 
   const handleSearch = event => {
     setSearchTerm(event.target.value);
   };
-
-  const searchedStories = stories.data.filter(story => 
-    story.title.toLowerCase().includes(searchTerm.toLowerCase())
-  );
 
   return (
     <div>
@@ -98,7 +97,7 @@ const [searchTerm, setSearchTerm] = useSemiPersistentState('search', 'React');
 
       { stories.isLoading 
       ? ( <p>Loading ...</p> )
-      : ( <List list={searchedStories} onRemoveItem={handleRemoveStory} /> )
+      : ( <List list={stories.data} onRemoveItem={handleRemoveStory} /> )
       }
       
     </div>
