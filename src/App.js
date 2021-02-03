@@ -25,7 +25,7 @@ const App = () => {
           isLoading: true,
           isError: false,
         };
-      case 'STORIES_FETCH_SUCCES':
+      case 'STORIES_FETCH_SUCCESS':
         return {
           ...state,
           isLoading: false,
@@ -60,21 +60,19 @@ const App = () => {
     `${API_ENDPOINT}${searchTerm}`
   );
 
-  const handleFetchStories = React.useCallback(() => {
-    if(!searchTerm) return;
-
+  const handleFetchStories = React.useCallback(async () => {
     dispatchStories({ type: 'STORIES_FETCH_INIT' });
 
-    axios
-    .get(url)
-    .then(result => {
+    try {
+      const result = await axios.get(url);
+
       dispatchStories({
-        type: 'STORIES_FETCH_SUCCES',
+        type: 'STORIES_FETCH_SUCCESS',
         payload: result.data.hits,
       });
-    })
-    .catch(() => dispatchStories({ type: 'STORIES_FETCH_FAILURE'})
-    );
+    } catch {
+      dispatchStories({type: 'STORIES_FETCH_FAILURE' });
+    }
   }, [url]);
 
   React.useEffect(() => {
